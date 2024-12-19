@@ -44,3 +44,12 @@ def home_view(request):
     if 'access_token' not in request.session:
         return redirect('login')
     return render(request, 'index.html')
+
+
+def logout_view(request):
+    if request.method == 'POST':
+        # Clear session data
+        request.session.flush()
+        # Redirect to login page
+        return redirect('login')
+    return redirect('home')  # Redirect to home if accessed via GET
