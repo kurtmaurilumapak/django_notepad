@@ -1,66 +1,72 @@
 from django.shortcuts import render, redirect
-from django.contrib.auth import authenticate, login
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.csrf import csrf_protect
-from .models import Note
 import requests
 
-BASE_URL = 'http://127.0.0.1:8000/api/'  # Replace with your server's API endpoint
+# Create your views here.
+
+
+
+BASE_URL = 'http://127.0.0.1:8000/api/'  # Replace with your server IP
 
 def register_view(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         data = {'username': username, 'password': password}
-        try:
-            response = requests.post(f'{BASE_URL}register/', json=data)
-            if response.status_code == 201:
-                return redirect('login')
-            else:
-                error_message = response.json().get('error', 'Registration failed.')
-                return render(request, 'register.html', {'error': error_message})
-        except requests.exceptions.RequestException:
-            return render(request, 'register.html', {'error': 'Server unavailable. Try again later.'})
+        response = requests.post(f'{BASE_URL}register/', json=data)
+
+        if response.status_code == 201:
+            return redirect('login')
+        else:
+            return render(request, 'register.html', {'error': response.json()})
+
     return render(request, 'register.html')
 
 def login_view(request):
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
+        data = {'username': username, 'password': password}
+        response = requests.post(f'{BASE_URL}token/', json=data)
 
-        # Authenticate the user
-        user = authenticate(request, username=username, password=password)
-        if user is not None:
-            # Log the user in
-            login(request, user)
-            return redirect('home')  # Redirect to the home page after successful login
+        if response.status_code == 200:
+            tokens = response.json()
+            request.session['access_token'] = tokens['access']
+            request.session['refresh_token'] = tokens['refresh']
+            return redirect('home')  # Define a home view for after login
         else:
-            # Invalid login attempt
-            return render(request, 'login.html', {'error': 'Invalid username or password'})
+            return render(request, 'login.html', {'error': response.json()})
 
     return render(request, 'login.html')
 
-@login_required
 def home_view(request):
-    notes = Note.objects.filter(user=request.user)
-    return render(request, 'index.html', {'notes': notes})
+    if 'access_token' not in request.session:
+        return redirect('login')
+
+    # Get the access token from the session
+    access_token = request.session['access_token']
+
+    # Fetch user data from the server
+    headers = {
+        'Authorization': f'Bearer {access_token}',  # Include the token in the request
+    }
+
+    try:
+        response = requests.get(f'{BASE_URL}user-data/', headers=headers)
+        if response.status_code == 200:
+            user_data = response.json()  # Parse the user data
+        else:
+            user_data = {'error': 'Failed to fetch user data'}
+    except Exception as e:
+        user_data = {'error': str(e)}
+
+    return render(request, 'index.html', {'user_data': user_data})
+
 
 
 def logout_view(request):
-    request.session.flush()
-    return redirect('login')
-
-@login_required
-@csrf_protect
-def add_note_view(request):
     if request.method == 'POST':
-        note_content = request.POST.get('note_content')
-        if note_content:
-            try:
-                Note.objects.create(notes=note_content, user=request.user)  # Use 'notes' field
-                return redirect('home')
-            except Exception as e:
-                print(f"Error while saving note: {e}")
-                return render(request, 'index.html', {'error': 'Failed to save note.'})
-    notes = Note.objects.filter(user=request.user)
-    return render(request, 'index.html', {'notes': notes})
+        # Clear session data
+        request.session.flush()
+        # Redirect to login page
+        return redirect('login')
+    return redirect('home')  # Redirect to home if accessed via GET

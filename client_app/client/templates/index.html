@@ -120,7 +120,7 @@
       <div class="profile">
         <!-- Initials of the username -->
         <div class="initials">{{ username_initial }}</div>
-        <span>{{ user.username }}</span>
+        <span>{{ user_data.username }}</span>
       </div>
       <form action="{% url 'logout' %}" method="post">
         {% csrf_token %}
@@ -131,28 +131,44 @@
     <!-- Content -->
     <div class="content">
       <h1>Welcome!</h1>
-      <p>You are logged in as {{ user.username }}.</p>
+      <p>You are logged in as {{ user_data.username }}.</p>
 
       <!-- Add Note Form -->
-      <form class="note-form" action="{% url 'add_note' %}" method="post">
-        {% csrf_token %}
+      <form id="add-note-form">
+        <input type="hidden" id="user-id" value="{{ user_data.id }}">
+        <input type="text" id="title" name="title" required><br>
         <textarea
-          name="note_content"
+          id="content"
+          name="content"
           placeholder="Write your note here..."
           required
         ></textarea>
-        <button type="submit">Add Note</button>
+        <button type="button" onclick="addNote()">Add Note</button>
       </form>
-
-      <!-- Notes Section -->
-      <div class="notes-section">
-        <h2>Your Notes</h2>
-        {% for note in notes %}
-        <div class="note-item">{{ note.notes }}</div>
-        {% empty %}
-        <p>No notes available. Start adding some!</p>
-        {% endfor %}
-      </div>
+      <p id="message"></p>
     </div>
+
+    <script>
+      async function addNote() {
+        const title = document.getElementById('title').value;
+        const content = document.getElementById('content').value;
+
+        const response = await fetch('http://127.0.0.1:8000/api/add-note/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer {{ request.session.access_token }}`,
+          },
+          body: JSON.stringify({ title, content }),
+        });
+
+        const data = await response.json();
+        if (response.ok) {
+          document.getElementById('message').innerText = data.message;
+        } else {
+          document.getElementById('message').innerText = `Error: ${data.error}`;
+        }
+      }
+    </script>
   </body>
 </html>
