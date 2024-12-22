@@ -79,7 +79,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'notepad',
         'USER': 'postgres',
-        'PASSWORD': 'admin',
+        'PASSWORD': 'X2214jck#',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -104,6 +104,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+LOGIN_URL = '/login/'
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
