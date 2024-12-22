@@ -11,9 +11,11 @@ class DecryptionAndCORSHeadersMiddleware:
         if request.body:
             try:
                 # Decrypt incoming data
-                request.body = cipher.decrypt(request.body)
-            except Exception:
-                pass
+                decrypted_body = cipher.decrypt(request.body)
+                request.body = decrypted_body
+            except Exception as e:
+                print(f"Decryption error: {e}")
+
         response = self.get_response(request)
 
         response["Access-Control-Allow-Origin"] = "http://127.0.0.1:8001"  # Client app URL

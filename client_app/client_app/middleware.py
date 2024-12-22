@@ -12,9 +12,11 @@ class EncryptionMiddleware:
         if request.body:
             try:
                 # Encrypt outgoing data
-                request.body = cipher.encrypt(request.body)
-            except Exception:
-                pass
+                encrypted_body = cipher.encrypt(request.body)
+                print("Encrypted data:", encrypted_body.decode())  # This will print in the browser console
+                request.body = encrypted_body
+            except Exception as e:
+                print(f"Encryption error: {e}")
         response = self.get_response(request)
 
         return response

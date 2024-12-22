@@ -134,8 +134,9 @@
       <p>You are logged in as {{ user_data.username }}.</p>
 
       <!-- Add Note Form -->
-      <form id="add-note-form">
-        <input type="hidden" id="user-id" value="{{ user_data.id }}">
+      <form id="add-note-form" method="post">
+        {% csrf_token %}
+
         <input type="text" id="title" name="title" required><br>
         <textarea
           id="content"
@@ -150,24 +151,29 @@
 
     <script>
       async function addNote() {
-        const title = document.getElementById('title').value;
-        const content = document.getElementById('content').value;
+        const title = document.getElementById("title").value;
+        const content = document.getElementById("content").value;
 
-        const response = await fetch('http://127.0.0.1:8000/api/add-note/', {
-          method: 'POST',
+        const token = "{{ request.session.access_token }}";
+
+        if (!token) {
+          document.getElementById("message").innerText = "Error: User not authenticated.";
+          return;
+        }
+
+        const response = await fetch("http://127.0.0.1:8000/api/add-note/", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer {{ request.session.access_token }}`,
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${token}`,
           },
-          body: JSON.stringify({ title, content }),
+          body: JSON.stringify({ title, content }), // Data is encrypted by client middleware
         });
 
         const data = await response.json();
-        if (response.ok) {
-          document.getElementById('message').innerText = data.message;
-        } else {
-          document.getElementById('message').innerText = `Error: ${data.error}`;
-        }
+        document.getElementById("message").innerText = response.ok
+                ? data.message
+                : `Error: ${data.error}`;
       }
     </script>
   </body>

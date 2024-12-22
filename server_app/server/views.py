@@ -26,12 +26,14 @@ class AddNoteView(APIView):
             title = data.get('title')
             note = data.get('content')
             user = request.user
+
             if not title or not note:
                 return Response({"error": "Title and content are required"}, status=status.HTTP_400_BAD_REQUEST)
 
             # Save the note to the database
             Note.objects.create(title=title, note=note, user=user)
             return Response({"message": "Note added successfully"}, status=status.HTTP_201_CREATED)
+
         except Exception as e:
             return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
