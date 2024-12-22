@@ -44,3 +44,4 @@ class UserDataView(APIView):
             'id': user.id,
             'username': user.username
         })
+
