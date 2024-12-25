@@ -21,7 +21,6 @@ class AddNoteView(APIView):
 
     def post(self, request):
         try:
-
             data = request.data
             title = data.get('title')
             note = data.get('content')
@@ -47,3 +46,22 @@ class UserDataView(APIView):
             'username': user.username
         })
 
+class FetchNotesView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        try:
+            user = request.user  # Get the authenticated user
+            notes = Note.objects.filter(user=user)  # Fetch notes for the user
+            notes_data = [
+                {
+                    "id": note.id,
+                    "title": note.title,
+                    "content": note.note,
+                    "created_at": note.created_at
+                }
+                for note in notes
+            ]
+            return Response(notes_data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

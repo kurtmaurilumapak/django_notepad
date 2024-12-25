@@ -93,24 +93,30 @@
 
       .notes-section {
         margin-top: 20px;
-        text-align: left;
+        max-width: 600px;
+        margin-left: auto;
+        margin-right: auto;
       }
 
       .note-item {
-        background: #333; /* Dark background color for notes */
-        padding: 10px;
+        background: #333;
+        color: #fff;
+        padding: 15px;
         margin: 10px 0;
-        border: 1px solid #444; /* Slightly lighter border for contrast */
         border-radius: 5px;
-        text-align: left;
-        color: #fff; /* White text for contrast on dark background */
-        font-size: 16px; /* Font size for notes */
-        line-height: 1.5; /* Line height for better readability */
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
       }
 
-      .note-item:hover {
-        background: #3434; /* Slightly darker background on hover */
-        border-color: #bbb; /* Change border color on hover */
+      .note-item h3 {
+        margin: 0 0 10px;
+      }
+
+      .note-item p {
+        margin: 0 0 5px;
+      }
+
+      .note-item small {
+        color: #bbb;
       }
     </style>
   </head>
@@ -137,7 +143,7 @@
       <form id="add-note-form" method="post">
         {% csrf_token %}
 
-        <input type="text" id="title" name="title" required><br>
+        <input type="text" id="title" name="title" required /><br />
         <textarea
           id="content"
           name="content"
@@ -149,6 +155,11 @@
       <p id="message"></p>
     </div>
 
+    <h1>Your Notes</h1>
+    <div id="notes-section">
+      <p>Loading notes...</p>
+    </div>
+
     <script>
       async function addNote() {
         const title = document.getElementById("title").value;
@@ -157,7 +168,8 @@
         const token = "{{ request.session.access_token }}";
 
         if (!token) {
-          document.getElementById("message").innerText = "Error: User not authenticated.";
+          document.getElementById("message").innerText =
+            "Error: User not authenticated.";
           return;
         }
 
@@ -165,16 +177,64 @@
           method: "POST",
           headers: {
             "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`,
+            Authorization: `Bearer ${token}`,
           },
           body: JSON.stringify({ title, content }), // Data is encrypted by client middleware
         });
 
         const data = await response.json();
         document.getElementById("message").innerText = response.ok
-                ? data.message
-                : `Error: ${data.error}`;
+          ? data.message
+          : `Error: ${data.error}`;
       }
+
+      async function fetchNotes() {
+        const token = "{{ request.session.access_token }}"; // Replace with the actual access token
+        try {
+          const response = await fetch(
+            "http://127.0.0.1:8000/api/fetch-notes/",
+            {
+              method: "GET",
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
+          }
+
+          const data = await response.json();
+          const notesSection = document.getElementById("notes-section");
+          notesSection.innerHTML = ""; // Clear existing content
+
+          if (data.length === 0) {
+            notesSection.innerHTML = "<p>No notes found.</p>";
+            return;
+          }
+
+          data.forEach((note) => {
+            const noteElement = document.createElement("div");
+            noteElement.classList.add("note-item");
+            noteElement.innerHTML = `
+                    <h3>${note.title}</h3>
+                    <p>${note.content}</p>
+                    <small>Created at: ${new Date(
+                      note.created_at
+                    ).toLocaleString()}</small>
+                `;
+            notesSection.appendChild(noteElement);
+          });
+        } catch (error) {
+          console.error("Error fetching notes:", error);
+          const notesSection = document.getElementById("notes-section");
+          notesSection.innerHTML = `<p>Error loading notes. Please try again later.</p>`;
+        }
+      }
+
+      // Call fetchNotes on page load
+      fetchNotes();
     </script>
   </body>
 </html>
