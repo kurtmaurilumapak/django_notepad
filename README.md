@@ -105,7 +105,7 @@ cd django_notepad
    ```
 2. Run the server on port `8000`:
    ```bash
-   python manage.py runserver 8000
+   python manage.py runserver 0.0.0.0:8000
    ```
 
 ### **2. Start the Client App**
@@ -115,7 +115,7 @@ cd django_notepad
    ```
 2. Run the client on port `8001`:
    ```bash
-   python manage.py runserver 8001
+   python manage.py runserver 0.0.0.0:8001
    ```
 
 ---
