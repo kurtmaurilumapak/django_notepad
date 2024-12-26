@@ -123,7 +123,7 @@ cd django_notepad
 ## **Usage**
 
 ### **1. Access the Client App on Different Device**
-Make sure you are on the same network where you run the server_app and client_app, and make sure you allow python on firewall inbound rules.
+Make sure you are on the same network where you run the server_app and client_app, and make sure you allow python on firewall inbound rules. Also change the ip address on server_app middleware.py, client_app views.py base url, and index.html on script fetching and sending of data to the host ip address.
 - Open a browser and navigate to:
   ```
   http://<ip-of-the-device-where-you-run-the-server_app-and-client_app>:8001/
