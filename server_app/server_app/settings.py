@@ -50,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'server_app.middleware.DecryptionAndCORSHeadersMiddleware',
+    'server_app.middleware.EncryptionMiddleware',
 ]
 
 ROOT_URLCONF = 'server_app.urls'

@@ -49,6 +49,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'client_app.middleware.EncryptionMiddleware',
+    'client_app.middleware.DecryptionMiddleware',
 ]
 
 ROOT_URLCONF = 'client_app.urls'
@@ -80,7 +81,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'notepad',
         'USER': 'postgres',
-        'PASSWORD': 'admin',
+        'PASSWORD': 'X2214jck#',
         'HOST': 'localhost',
         'PORT': '5432',
     }

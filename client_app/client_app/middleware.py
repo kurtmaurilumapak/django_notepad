@@ -20,3 +20,20 @@ class EncryptionMiddleware:
         response = self.get_response(request)
 
         return response
+    
+class DecryptionMiddleware:
+    def __init__(self, get_response):
+        self.get_response = get_response
+
+    def __call__(self, request):
+        if request.body:
+            try:
+                # Decrypt incoming data
+                decrypted_body = cipher.decrypt(request.body)
+                print("Decrypted data:", decrypted_body.decode())  # Logs decrypted data in the server console
+                request._body = decrypted_body  # Reassign the decrypted body for further processing
+            except Exception as e:
+                print(f"Decryption error: {e}")
+        
+        response = self.get_response(request)
+        return response
