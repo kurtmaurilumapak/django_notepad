@@ -18,7 +18,7 @@ class DecryptionAndCORSHeadersMiddleware:
 
         response = self.get_response(request)
 
-        response["Access-Control-Allow-Origin"] = "http://127.0.0.1:8001"  # Client app URL
+        response["Access-Control-Allow-Origin"] = "http://127.0.0.1:8001"  # Change to Host IP
         response["Access-Control-Allow-Methods"] = "GET, POST, OPTIONS"
         response["Access-Control-Allow-Headers"] = "Content-Type, Authorization"
 

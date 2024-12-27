@@ -5,7 +5,7 @@ import requests
 
 
 
-BASE_URL = 'http://127.0.0.1:8000/api/'  # Replace with your server IP
+BASE_URL = 'http://127.0.0.1:8000/api/'  # Replace with your Host IP
 
 def register_view(request):
     if request.method == 'POST':

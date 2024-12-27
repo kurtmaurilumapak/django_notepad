@@ -285,7 +285,7 @@
           return;
         }
     
-        const response = await fetch("http://127.0.0.1:8000/api/add-note/", {
+        const response = await fetch("http://127.0.0.1:8000/api/add-note/", { // Change to host IP
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -311,7 +311,7 @@
         const token = "{{ request.session.access_token }}";
         try {
           const response = await fetch(
-            "http://127.0.0.1:8000/api/fetch-notes/",
+            "http://127.0.0.1:8000/api/fetch-notes/", // Change to Host IP
             {
               method: "GET",
               headers: {
